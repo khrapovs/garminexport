@@ -18,8 +18,8 @@ from garminexport.retryer import Retryer, ExponentialBackoffDelayStrategy, MaxRe
 logging.basicConfig(level=logging.INFO, format="%(asctime)-15s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
-if __name__ == "__main__":
 
+def main():
     parser = argparse.ArgumentParser(
         description="Downloads one particular activity for a given Garmin Connect account.")
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         "activity", metavar="<activity>", type=int, help="Activity ID.")
     parser.add_argument(
         "format", metavar="<format>", type=str,
-        help="Export format (one of: {}).".format(garminexport.backup.export_formats))
+        help="Export format (one of: {}).".format(garminexport.backup.supported_export_formats))
 
     # optional args
     parser.add_argument(
@@ -49,10 +49,10 @@ if __name__ == "__main__":
     if args.log_level not in LOG_LEVELS:
         raise ValueError("Illegal log-level argument: {}".format(args.log_level))
 
-    if args.format not in garminexport.backup.export_formats:
+    if args.format not in garminexport.backup.supported_export_formats:
         raise ValueError(
             "Unrecognized export format: '{}'. Must be one of {}".format(
-                args.format, garminexport.backup.export_formats))
+                args.format, garminexport.backup.supported_export_formats))
 
     logging.root.setLevel(LOG_LEVELS[args.log_level])
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
             args.password = getpass.getpass("Enter password: ")
 
         with GarminClient(args.username, args.password) as client:
-            log.info("fetching activity {} ...".format(args.activity))
+            log.info("fetching activity %s ...", args.activity)
             summary = client.get_activity_summary(args.activity)
             # set up a retryer that will handle retries of failed activity downloads
             retryer = Retryer(
@@ -75,5 +75,5 @@ if __name__ == "__main__":
             garminexport.backup.download(
                 client, (args.activity, start_time), retryer, args.destination, export_formats=[args.format])
     except Exception as e:
-        log.error("failed with exception: {}".format(e))
+        log.error("failed with exception: %s", e)
         raise

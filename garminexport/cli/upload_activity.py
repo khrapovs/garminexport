@@ -1,6 +1,5 @@
 #! /usr/bin/env python
-"""A program that uploads an activity file to a Garmin
-Connect account.
+"""A program that uploads an activity file to a Garmin Connect account.
 """
 import argparse
 import getpass
@@ -12,8 +11,8 @@ from garminexport.logging_config import LOG_LEVELS
 logging.basicConfig(level=logging.INFO, format="%(asctime)-15s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
-if __name__ == "__main__":
 
+def main():
     parser = argparse.ArgumentParser(
         description="Uploads an activity file to a Garmin Connect account.")
 
@@ -56,15 +55,15 @@ if __name__ == "__main__":
 
         with GarminClient(args.username, args.password) as client:
             for activity in args.activity:
-                log.info("uploading activity file {} ...".format(activity.name))
+                log.info("uploading activity file %s ...", activity.name)
                 try:
                     id = client.upload_activity(activity, name=args.name, description=args.description,
                                                 private=args.private, activity_type=args.type)
                 except Exception as e:
                     log.error("upload failed: {!r}".format(e))
                 else:
-                    log.info("upload successful: https://connect.garmin.com/modern/activity/{}".format(id))
+                    log.info("upload successful: https://connect.garmin.com/modern/activity/%s", id)
 
     except Exception as e:
-        log.error("failed with exception: {}".format(e))
+        log.error("failed with exception: %s", e)
         raise
